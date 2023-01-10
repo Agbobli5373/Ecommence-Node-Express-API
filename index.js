@@ -1,14 +1,24 @@
 const express = require('express');
 const morgan = require('morgan') ;
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const productRoutes = require('./api/routes/productRoute');
 const oderRoutes = require('./api/routes/orderRoute') ;
 
 
 const app = express();
 const PORT = 5000 ;
+const mongoURL ='mongodb://127.0.0.1:27017/ecomDB'
 
-app.use((req,res,next)=>{
+mongoose.connect(mongoURL,{
+    useNewUrlParser: true,
+    useUnifiedTopology:true,}) 
+
+   .then(()=>console.log('MongoDB connected'))
+   .catch((err) =>console.log(err));
+
+
+/* app.use((req,res,next)=>{
     res.header('Access-Control-Allow-Origin','*');
     res.header(
         'Access-Control-Allow-header',
@@ -19,7 +29,7 @@ app.use((req,res,next)=>{
     return res.status(200).json({});
    }
    nexet();
-})
+}) */
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded ({ extended :false}));
@@ -47,4 +57,4 @@ app.use((error,req,res,next)=>{
     })
 })
 
-app.listen(PORT, () => console.log(`Am running on Port ${PORT}`));
+app.listen(PORT, () => console.log(`Running Server on ${PORT}`));

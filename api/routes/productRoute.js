@@ -1,9 +1,8 @@
 const express = require('express') ;
 const router = express.Router() ;
-const mongoose = require('mongoose');
 
 const Product = require('../models/ProductModel');
-
+//GET Product route
 router.get('/',(req,res,next)=>{
     
    Product.find({}) 
@@ -43,10 +42,17 @@ router.post('/',(req,res,next)=>{
     })
     product.save()
            .then((result)=>{
-            console.log(result)
-            res.status(201).json({
-                CreatedProduct : result
-            })
+            const resporn = {message : "Product is created successfully",
+            createdProduct: {
+                name : result.name,
+                price : result.price,
+                _id : result._id,
+                request : {
+                    type : "GET",
+                    url : `http://localhost:5000/product/${result._id}`
+                }
+            }}
+            res.status(201).json(resporn)
            })
            .catch((err)=>{
             console.log(err)
@@ -58,7 +64,17 @@ router.delete('/:productId', (req,res,next)=>{
     Product.remove({_id : id})
            .exec()
            .then((result)=>{
-            res.status(200).json({message : `Product with ${id} is deleted`})
+            const resporn = {
+                message : `Product with ${id} is deleted`,
+                request :{
+                    Type : "POST",
+                    url : `http://localhost:5000/product`
+                },
+                body :{
+                    name : "String",
+                    price :"Number"        }
+                }
+            res.status(200).json(resporn)
            })
            .catch((err)=>{
             res.status(500).json(err)
@@ -92,7 +108,19 @@ router.patch('/:productId',(req,res,next)=>{
     Product.findOneAndUpdate({_id:id },req.body,{new:true,useFindmodify:false})
            .exec()
            .then((result)=>{
-             res.status(200).json(result)
+            const resporn = {
+                message : "Updated product",
+                product : {
+                    name: result.name,
+                    price: result.price,
+                    _id : result._id
+                },
+                request : {
+                    Type : "GET",
+                    url :`http://localhost:5000/product ${result._id}`
+                }
+            }
+             res.status(200).json(resporn)
            })
            .catch((err)=>{
             res.status(500).json(err)

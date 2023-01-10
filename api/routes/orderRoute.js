@@ -8,7 +8,20 @@ router.get('/', (req,res,next)=>{
    Order.find({})
         .exec()
         .then((result)=>{
-            res.status(200).json(result)
+           const resporn  = {
+                Data : result.map((data)=>{
+                    return{
+                        _id : data._id,
+                        quantity : data.quantity,
+                        product : data.product,
+                        Request :{
+                            Type :"GET",
+                            url : `http://localhost:5000/order/${data._id}`
+                        }
+                    }
+                })
+           }
+            res.status(200).json(resporn)
         })
         .catch((err)=>{
             res.status(500).json(err)
@@ -64,16 +77,29 @@ router.get('/:orderId', (req,res,next)=>{
 
 router.delete('/:orderId',(req,res,next)=>{
     const id = req.params.orderId ;
-    res.status(200).json({
-        message : `DELETE route for Order The ID provide in the link is ${id}`
-    })
+   Order.remove({_id:id})
+        .exec()
+        .then((result)=>{
+            res.status(200).json({
+                message : `Order with ${id} delete successfully`
+            })
+        })
+        .catch((err)=>{
+            res.status(500).json(err)
+        })
 })
 
 router.patch('/:orderId',(req,res,next)=>{
     const id = req.params.orderId ;
-    res.status(200).json({
-        message : `PATCH route for Order The ID provide in the link is ${id}`
-    })
+    Order.findByIdAndUpdate({_id:id}, req.body,{new:true})
+         .exec()
+         .then((result)=>{
+            res.status(200).json(result)
+         })
+         .catch((err)=>{
+            res.status(500).json(err)
+         })
+
 })
 
 module.exports = router ;

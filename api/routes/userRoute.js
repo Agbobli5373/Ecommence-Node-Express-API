@@ -6,7 +6,7 @@ const User = require("../models/UserModel");
 
 const key = "Ayuba";
 
-//POST route
+//Sign up route
 router.post("/signup", (req, res, next) => {
   User.find({ email: req.body.email })
     .exec()
@@ -46,12 +46,7 @@ router.post("/signup", (req, res, next) => {
     });
 });
 
-//POST route
-router.post("/", (req, res, next) => {
-  res.status(200).json({ message: "Log in Route" });
-});
-
-//DELETE route
+//DELETE User route
 router.delete("/:email", (req, res, next) => {
   const id = req.params.userId;
   User.remove({ email: req.params.email })
@@ -68,6 +63,24 @@ router.delete("/:email", (req, res, next) => {
     });
 });
 
+//Update User route
+router.patch("/userId", (req, res, next) => {
+  const id = req.params.userId;
+  User.findByIdAndUpdate({ _id: id }, { new: true })
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: `User with ${id} is update Successfull`,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        Error: err,
+      });
+    });
+});
+
+//GET Users route
 router.get("/", (req, res, next) => {
   User.find({})
     .exec()
@@ -101,7 +114,7 @@ router.post("/login", (req, res, next) => {
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (err) {
           return res.status(401).json({
-            message: "Auth Failde",
+            message: "Auth Fail",
           });
         }
         if (result) {
@@ -110,7 +123,7 @@ router.post("/login", (req, res, next) => {
               email: user[0].email,
               userId: user[0]._id,
             },
-            key,
+            'secret',
             {
               expiresIn: "1h",
             }
@@ -121,7 +134,7 @@ router.post("/login", (req, res, next) => {
           });
         }
         res.status(401).json({
-          message: "Auth Failde",
+          message: "Auth Fail",
         });
       });
     })

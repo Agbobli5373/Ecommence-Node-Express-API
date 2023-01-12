@@ -1,33 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const OrderCtrl = require('../controllers/orderCtrl');
 
 const Order = require("../models/OrderModel");
 const Product = require("../models/ProductModel");
-
-router.get("/", (req, res, next) => {
-    Order.find({})
-        .populate('product','name')
-        .exec()
-        .then((result) => {
-            const resporn = {
-                Data: result.map((data) => {
-                    return {
-                        _id: data._id,
-                        quantity: data.quantity,
-                        product: data.product,
-                        Request: {
-                            Type: "GET",
-                            url: `http://localhost:5000/order/${data._id}`,
-                        },
-                    };
-                }),
-            };
-            res.status(200).json(resporn);
-        })
-        .catch((err) => {
-            res.status(500).json(err);
-        });
-});
+//GET route for getting all orders
+router.get("/", OrderCtrl.getOrders );
 
 router.post("/", (req, res, next) => {
     Product.findById(req.body.productId)
